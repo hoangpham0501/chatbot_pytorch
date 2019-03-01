@@ -8,7 +8,7 @@ import random
 import os
 import codecs
 from io import open
-import itertools
+
 import math
 
 from utils import load_data, processing
@@ -56,10 +56,22 @@ load_data.print_lines(datafile)
 
 # Load/Assemble voc and pairs
 save_dir = os.path.join("data", "save")
-voc, pairs = processing.load_prepare_data(corpus_name, datafile, save_dir)
+voc, pairs = processing.load_prepare_data(corpus_name, datafile)
 # Print some pair to validate
 print("\npairs:")
 for pair in pairs[:10]:
     print(pair)
 
 pairs = processing.trim_rare_words(voc, pairs)
+
+
+# Example for validation prepare data
+small_batch_size = 5
+batches = processing.batch_2_train_tata(voc, [random.choice(pairs) for _ in range(small_batch_size)])
+input_variable, lengths, target_variable, mask, max_target_len = batches
+
+print("input_variable:", input_variable)
+print("lengths:", lengths)
+print("target_variable:", target_variable)
+print("mask:", mask)
+print("max_target_len:", max_target_len)
