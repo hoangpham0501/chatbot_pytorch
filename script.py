@@ -8,6 +8,7 @@ import random
 import os
 import codecs
 from io import open
+from build import build_model
 
 import math
 
@@ -65,13 +66,15 @@ for pair in pairs[:10]:
 pairs = processing.trim_rare_words(voc, pairs)
 
 
-# Example for validation prepare data
-small_batch_size = 5
-batches = processing.batch_2_train_tata(voc, [random.choice(pairs) for _ in range(small_batch_size)])
-input_variable, lengths, target_variable, mask, max_target_len = batches
+# # Example for validation prepare data
+# small_batch_size = 5
+# batches = processing.batch_2_train_tata(voc, [random.choice(pairs) for _ in range(small_batch_size)])
+# input_variable, lengths, target_variable, mask, max_target_len = batches
+#
+# print("input_variable:", input_variable)
+# print("lengths:", lengths)
+# print("target_variable:", target_variable)
+# print("mask:", mask)
+# print("max_target_len:", max_target_len)
 
-print("input_variable:", input_variable)
-print("lengths:", lengths)
-print("target_variable:", target_variable)
-print("mask:", mask)
-print("max_target_len:", max_target_len)
+build_model.build_model(voc)

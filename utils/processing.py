@@ -140,7 +140,7 @@ def output_var(l, voc):
 
 
 # Returns all items for a given batch of pairs
-def batch_2_train_tata(voc, pair_batch):
+def batch_2_train_data(voc, pair_batch):
     pair_batch.sort(key=lambda x: len(x[0].split(" ")), reverse=True)
     input_batch, output_batch = [], []
     for pair in pair_batch:
