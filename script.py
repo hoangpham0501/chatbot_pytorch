@@ -77,4 +77,5 @@ pairs = processing.trim_rare_words(voc, pairs)
 # print("mask:", mask)
 # print("max_target_len:", max_target_len)
 
-build_model.build_model(voc)
+# build_model.build_model(corpus_name, save_dir, pairs, voc)
+build_model.load_model(corpus_name, save_dir, voc)

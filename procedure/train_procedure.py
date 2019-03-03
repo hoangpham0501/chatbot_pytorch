@@ -15,6 +15,14 @@ EOS_token = 2   # End-of-sentence token
 teacher_forcing_ratio = 1.0
 
 
+def maskNLLLoss(inp, target, mask):
+    ntotal = mask.sum()
+    cross_entropy = -torch.log(torch.gather(inp, 1, target.view(-1, 1)).squeeze(1))
+    loss = cross_entropy.masked_select(mask).mean()
+    loss = loss.to(device)
+    return loss, ntotal.item()
+
+
 def train(input_variable, lengths, target_variable, mask,
           max_target_len, encoder, decoder, encoder_optimizer,
           decoder_optimizer, batch_size, clip):
@@ -95,7 +103,7 @@ def train(input_variable, lengths, target_variable, mask,
 def train_iters(model_name, voc, pairs, encoder, decoder, encoder_optimizer,
                 decoder_optimizer, embedding, encoder_n_layers, decoder_n_layers,
                 save_dir, n_iteration, batch_size, print_every, save_every, clip,
-                corpus_name, load_filename, checkpoint, hidden_size):
+                corpus_name, load_filename, hidden_size):
 
     # Load batches for each iteration
     training_batches = [processing.batch_2_train_data(voc, [random.choice(pairs)
@@ -111,10 +119,10 @@ def train_iters(model_name, voc, pairs, encoder, decoder, encoder_optimizer,
     # Training loop
     print("Training...")
     for iteration in range(start_iteration, n_iteration+1):
-        training_batches = training_batches[iteration - 1]
+        training_batch = training_batches[iteration - 1]
 
         # Extract fields from batch
-        input_variable, lengths, target_variable, mask, max_target_len = training_batches
+        input_variable, lengths, target_variable, mask, max_target_len = training_batch
 
         # Run a training iteration with batch
         loss = train(input_variable, lengths, target_variable, mask, max_target_len,
@@ -126,7 +134,7 @@ def train_iters(model_name, voc, pairs, encoder, decoder, encoder_optimizer,
         if iteration % print_every == 0:
             print_loss_avg = print_loss / print_every
             print("Iteration: {}; Percent complete: {:.1f}%; Average loss: "
-                  "{:.4f}".format(iteration, iteration/ n_iteration * 100,
+                  "{:.4f}".format(iteration, iteration / n_iteration * 100,
                                   print_loss_avg))
             print_loss = 0
 
@@ -135,15 +143,18 @@ def train_iters(model_name, voc, pairs, encoder, decoder, encoder_optimizer,
             directory = os.path.join(save_dir, model_name, corpus_name,
                                      '{}-{}-{}'.format(encoder_n_layers,
                                                        decoder_n_layers, hidden_size))
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-        torch.save({
-            'iteration': iteration,
-            'en': encoder.state_dict(),
-            'de': decoder.state_dict(),
-            'en_opt': encoder_optimizer.state_dict()
-            'de_opt': decoder_optimizer.state_dict()
-            'loss': loss,
-            'voc_dict': voc.__dict__,
-            'embedding': embedding.state_dict()
-        }, os.path.join(directory, '{}_{}.tar'.format(iteration, 'checkpoint')))
+            print(directory)
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+            torch.save({
+                'iteration': iteration,
+                'en': encoder.state_dict(),
+                'de': decoder.state_dict(),
+                'en_opt': encoder_optimizer.state_dict(),
+                'de_opt': decoder_optimizer.state_dict(),
+                'loss': loss,
+                'voc_dict': voc.__dict__,
+                'embedding': embedding.state_dict()
+            }, os.path.join(directory, '{}_{}.tar'.format(iteration, 'checkpoint')))
+
+
