@@ -98,7 +98,7 @@ def load_model(corpus_name, save_dir, voc):
     # Set to None if starting from scratch
     checkpoint_iter = 4000
     load_filename = os.path.join(save_dir, model_name, corpus_name,
-                                 '{}-{}_{}'.format(encoder_n_layers, decoder_n_layers, hidden_size),
+                                 '{}-{}-{}'.format(encoder_n_layers, decoder_n_layers, hidden_size),
                                  '{}_checkpoint.tar'.format(checkpoint_iter))
     if not os.path.isfile(load_filename):
         load_filename = None
